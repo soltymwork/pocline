@@ -94,11 +94,11 @@ header {
   display:flex; align-items:center; gap:8px;
   justify-content:flex-end;
   font-size:clamp(0.58rem,1.8vw,0.7rem);
-  color:var(--accent3); letter-spacing:0.1em; text-transform:uppercase;
+  color:#e53e3e; letter-spacing:0.1em; text-transform:uppercase;
 }
 .live-dot {
   width:8px; height:8px; border-radius:50%;
-  background:var(--accent3); animation:pulse 2s infinite;
+  background:#e53e3e; animation:pulse 2s infinite;
 }
 @keyframes pulse {
   0%,100%{opacity:1;transform:scale(1);}
@@ -419,6 +419,34 @@ canvas#chart { position:absolute; inset:0; width:100% !important; height:100% !i
 }
 .status-item { display:flex; align-items:center; gap:6px; white-space:nowrap; }
 .ok { color:var(--accent3); } .warn { color:var(--accent2); }
+
+/* INSTALL BUTTON */
+.install-btn {
+  display:inline-flex; align-items:center; gap:5px;
+  background:rgba(99,179,237,0.12); border:1px solid rgba(99,179,237,0.3);
+  border-radius:20px; padding:5px 14px;
+  color:var(--accent); font-family:'DM Mono', monospace;
+  font-size:clamp(0.56rem,1.6vw,0.68rem); letter-spacing:0.08em;
+  cursor:pointer; transition:all 0.25s;
+  white-space:nowrap;
+}
+.install-btn:hover { background:rgba(99,179,237,0.22); border-color:rgba(99,179,237,0.5); }
+
+/* iOS install tooltip */
+#ios-install-toast {
+  display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+  background:var(--card2); border:1px solid var(--border);
+  border-radius:14px; padding:14px 20px;
+  z-index:998; max-width:320px; text-align:center;
+  font-size:0.72rem; color:var(--text); line-height:1.6;
+  box-shadow:0 8px 30px rgba(0,0,0,0.4);
+  animation:fadeUp 0.3s ease;
+}
+#ios-install-toast .close-toast {
+  position:absolute; top:6px; right:10px;
+  background:none; border:none; color:var(--muted);
+  font-size:1rem; cursor:pointer;
+}
 
 /* ERROR */
 .err-msg {
@@ -786,9 +814,10 @@ canvas#chart { position:absolute; inset:0; width:100% !important; height:100% !i
     <div id="loc-suggestions"></div>
   </div>
   <div class="header-right">
-    <div class="live-badge"><div class="live-dot"></div>Živý prenos</div>
+    <button id="install-btn" class="install-btn" style="display:none" onclick="installApp()">📲 Inštalovať</button>
     <div id="clock">--:--:--</div>
     <div id="date-display">---</div>
+    <div class="live-badge"><div class="live-dot"></div>Live</div>
   </div>
 </header>
 
@@ -2384,11 +2413,63 @@ if(!navigator.geolocation){
 })();
 </script>
 
+<div id="ios-install-toast">
+  <button class="close-toast" onclick="this.parentElement.style.display='none'">✕</button>
+  Ťukni na <strong>📤 Zdieľať</strong> (dole v Safari)<br>
+  a potom <strong>Pridať na plochu</strong>
+</div>
+
 <script>
 // Register Service Worker for PWA
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
+
+// ── PWA Install logic ──
+let deferredPrompt = null;
+const installBtn = document.getElementById('install-btn');
+
+// Already installed as PWA — hide button
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+if(isStandalone) {
+  installBtn.style.display = 'none';
+} else {
+  // Android: capture beforeinstallprompt
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.style.display = 'inline-flex';
+  });
+
+  // iOS: show button with instructions
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if(isIOS && !window.navigator.standalone) {
+    installBtn.style.display = 'inline-flex';
+  }
+}
+
+function installApp() {
+  if(deferredPrompt) {
+    // Android — trigger native install
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(r => {
+      if(r.outcome === 'accepted') installBtn.style.display = 'none';
+      deferredPrompt = null;
+    });
+  } else {
+    // iOS — show instruction toast
+    const toast = document.getElementById('ios-install-toast');
+    toast.style.display = 'block';
+    setTimeout(() => { toast.style.display = 'none'; }, 8000);
+  }
+}
+
+// Hide button after successful install
+window.addEventListener('appinstalled', () => {
+  installBtn.style.display = 'none';
+  deferredPrompt = null;
+});
 </script>
 
 </body>
