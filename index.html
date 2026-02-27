@@ -428,9 +428,10 @@ canvas#chart { position:absolute; inset:0; width:100% !important; height:100% !i
   color:var(--accent); font-family:'Sora', sans-serif;
   font-size:clamp(0.7rem,2vw,0.82rem); font-weight:600; letter-spacing:0.06em;
   cursor:pointer; transition:all 0.25s;
-  white-space:nowrap; margin-top:10px;
+  white-space:nowrap;
 }
 .install-btn:hover { background:rgba(99,179,237,0.25); border-color:rgba(99,179,237,0.55); }
+.install-wrap { text-align:center; width:100%; margin-top:10px; }
 
 /* iOS install tooltip */
 #ios-install-toast {
@@ -779,11 +780,12 @@ canvas#chart { position:absolute; inset:0; width:100% !important; height:100% !i
   header {
     display:grid;
     grid-template-columns:1fr 1fr;
-    grid-template-areas: "logo clock" "search search";
+    grid-template-areas: "logo clock" "search search" "install install";
     align-items:start;
   }
   .logo { grid-area:logo; }
   .loc-search-wrap { grid-area:search; max-width:100%; margin-top:4px; }
+  .install-wrap { grid-area:install; }
   .header-right { grid-area:clock; text-align:right; }
 }
 </style>
@@ -813,7 +815,8 @@ canvas#chart { position:absolute; inset:0; width:100% !important; height:100% !i
     </div>
     <div id="loc-suggestions"></div>
   </div>
-  <button id="install-btn" class="install-btn" style="display:none" onclick="installApp()">📲 Stiahnuť aplikáciu</button>
+  <div class="install-wrap"><button id="install-btn" class="install-btn" style="display:none" onclick="installApp()">📲 Stiahnuť aplikáciu</button></div>
+
   <div class="header-right">
     <div id="clock">--:--:--</div>
     <div id="date-display">---</div>
@@ -2429,8 +2432,11 @@ if('serviceWorker' in navigator){
 let deferredPrompt = null;
 const installBtn = document.getElementById('install-btn');
 
-// Already installed as PWA — hide button
 const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
 if(isStandalone) {
   installBtn.style.display = 'none';
 } else {
@@ -2441,24 +2447,20 @@ if(isStandalone) {
     installBtn.style.display = 'inline-flex';
   });
 
-  // iOS: show button with instructions
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  if(isIOS && !window.navigator.standalone) {
+  // iOS: show button
+  if(isIOS) {
     installBtn.style.display = 'inline-flex';
   }
 }
 
 function installApp() {
   if(deferredPrompt) {
-    // Android — trigger native install
     deferredPrompt.prompt();
     deferredPrompt.userChoice.then(r => {
       if(r.outcome === 'accepted') installBtn.style.display = 'none';
       deferredPrompt = null;
     });
-  } else {
-    // iOS — show instruction toast
+  } else if(isIOS) {
     const toast = document.getElementById('ios-install-toast');
     toast.style.display = 'block';
     setTimeout(() => { toast.style.display = 'none'; }, 8000);
