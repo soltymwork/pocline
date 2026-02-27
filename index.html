@@ -1145,6 +1145,17 @@ function wmoInfo(code) {
   return m[code] || ['🌡️','—'];
 }
 
+/* WMO precipitation codes */
+const WMO_PRECIP = [51,53,55,61,63,65,71,73,75,77,80,81,82,85,86,95,96,99];
+
+/* If rain probability is ≤10%, override precipitation codes to cloudy/clear */
+function adjustCode(code, prob) {
+  if(prob > 10 || !WMO_PRECIP.includes(code)) return code;
+  // Low probability — show cloud-based weather instead
+  if(code >= 71 && code <= 77 || code === 85 || code === 86) return 3; // snow codes → cloudy
+  return 3; // rain/storm codes → cloudy
+}
+
 function windDirSK(deg) {
   return ['S','SSV','SV','VSV','V','VJV','JV','JJV','J','JJZ','JZ','ZJZ','Z','ZSZ','SZ','SSZ'][Math.round(deg/22.5)%16];
 }
@@ -1294,7 +1305,8 @@ function renderForecast(d) {
     const dt    = new Date(d.time[i]);
     const label = i===0?'Dnes':i===1?'Zajtra':DAY_SK[dt.getDay()];
     const code = noonCode(d.time[i]) ?? d.weather_code[i];
-    const [icon]= wmoInfo(code);
+    const prob_i = d.precipitation_probability_max[i]||0;
+    const [icon]= wmoInfo(adjustCode(code, prob_i));
     const wind = d.wind_speed_10m_max?.[i]||0;
     if(i<5) console.log('Day',i,'wind:',wind,'raw:',d.wind_speed_10m_max?.[i]);
     const windIcon = wind >= 20 ? `<div class="forecast-wind"><svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M3 8h10c1.7 0 3-1.3 3-3s-1.3-3-3-3-3 1.3-3 3" stroke="#93c5fd" stroke-width="2" stroke-linecap="round"/> <line x1="3" y1="12" x2="18" y2="12" stroke="#93c5fd" stroke-width="2" stroke-linecap="round"/> <path d="M3 16h13c1.7 0 3 1.3 3 3s-1.3 3-3 3-3-1.3-3-3" stroke="#93c5fd" stroke-width="2" stroke-linecap="round"/></svg></div>` : '';
@@ -1319,7 +1331,8 @@ function openModal(i) {
   const d   = dailyData;
   const dt  = new Date(d.time[i]);
   const repCode = noonCode(d.time[i]) ?? d.weather_code[i];
-  const [icon, desc] = wmoInfo(repCode);
+  const modalProb = d.precipitation_probability_max[i]||0;
+  const [icon, desc] = wmoInfo(adjustCode(repCode, modalProb));
   const label = i===0?'Dnes':i===1?'Zajtra':DAY_SK_FULL[dt.getDay()];
 
   document.getElementById('modal-date').textContent =
@@ -1382,7 +1395,7 @@ function renderHourly(dayIso) {
     const temp = hourlyData.temperature_2m[idx];
     const code = hourlyData.weather_code[idx];
     const prob = hourlyData.precipitation_probability[idx] || 0;
-    const [ico] = wmoInfo(code);
+    const [ico] = wmoInfo(adjustCode(code, prob));
     const isNow  = isToday && hr === nowH;
 
     const el = document.createElement('div');
@@ -1422,7 +1435,7 @@ function openHourDetail(idx, hr, isNow, el) {
   }
   detail.dataset.idx = String(idx);
 
-  const [ico, desc] = wmoInfo(d.weather_code[idx]);
+  const [ico, desc] = wmoInfo(adjustCode(d.weather_code[idx], d.precipitation_probability[idx]||0));
   const timeLabel = isNow ? 'Teraz' : hr + ':00';
   const wind = (d.wind_speed_10m?.[idx]||0).toFixed(0);
   const gusts = (d.wind_gusts_10m?.[idx]||0).toFixed(0);
