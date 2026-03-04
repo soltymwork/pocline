@@ -382,33 +382,34 @@ canvas#chart { position:absolute; inset:0; width:100% !important; height:100% !i
   flex:0 0 auto;
   width:84px;
   background:var(--card2); border-radius:12px;
-  padding:14px 8px;
+  padding:8px 8px 12px;
   text-align:center; border:1px solid var(--border);
   transition:all 0.2s; cursor:pointer;
+  display:flex; flex-direction:column; align-items:center;
 }
 .forecast-item:hover { border-color:var(--accent); transform:translateY(-2px); }
 .forecast-day {
   font-size:clamp(0.74rem,1.9vw,0.84rem);
   letter-spacing:0.08em; text-transform:uppercase;
-  color:var(--muted); margin-bottom:1px;
+  color:var(--muted); margin-bottom:2px; line-height:1.3;
 }
-.forecast-date {
-  font-size:clamp(0.6rem,1.5vw,0.66rem);
-  color:var(--muted); opacity:0.7; margin-bottom:5px;
+.forecast-date-inline {
+  font-size:clamp(0.56rem,1.3vw,0.62rem);
+  opacity:0.7; letter-spacing:0.04em;
 }
 .forecast-icon-row {
   position:relative; display:flex; justify-content:center;
-  align-items:flex-start; margin-bottom:4px;
+  align-items:flex-start; margin-bottom:2px;
 }
 .forecast-icon { font-size:clamp(1.3rem,3.5vw,1.7rem); }
 .forecast-temps {
   display:flex; justify-content:center; gap:4px;
-  font-size:clamp(0.88rem,2.4vw,1.02rem); font-weight:700;
+  font-size:clamp(0.96rem,2.6vw,1.12rem); font-weight:700;
 }
 .forecast-temps .h { color:var(--accent2); }
 .forecast-temps .l { color:var(--accent); }
-.forecast-rain { font-size:clamp(0.68rem,1.8vw,0.78rem); color:var(--muted); margin-top:4px; }
-.forecast-wind { font-size:0.75rem; position:absolute; top:-4px; right:-2px; line-height:1; }
+.forecast-rain { font-size:clamp(0.68rem,1.8vw,0.78rem); color:var(--muted); margin-top:3px; }
+.forecast-wind { font-size:0.75rem; position:absolute; top:4px; right:-10px; line-height:1; }
 
 /* STATUS */
 .status-bar {
@@ -1375,8 +1376,7 @@ function renderForecast(d) {
 
     row.innerHTML += `
       <div class="forecast-item" onclick="openModal(${i})" id="fday-${i}">
-        <div class="forecast-day">${label}</div>
-        <div class="forecast-date">${dt.getDate()}.${dt.getMonth()+1}.</div>
+        <div class="forecast-day">${i<=1 ? label : label+' <span class="forecast-date-inline">'+dt.getDate()+'.'+(dt.getMonth()+1)+'.</span>'}</div>
         <div class="forecast-icon-row">
           <div class="forecast-icon">${icon}</div>
           ${windIcon}
@@ -1473,7 +1473,7 @@ function renderHourly(dayIso) {
     el.innerHTML = `
       <div class="hourly-time">${isNow?'Teraz':hr+':00'}</div>
       <div class="hourly-icon">${ico}</div>
-      <div class="hourly-temp" style="color:${tempColor}">${temp.toFixed(0)}°</div>
+      <div class="hourly-temp" style="color:${tempColor}">${tRound === 0 ? '0' : tRound}°</div>
       <div class="hourly-rain"${prob===0?' style="color:var(--muted)"':''}>💧${prob}%</div>`;
     el.addEventListener('click', function() { openHourDetail(idx, hr, isNow, this); });
     container.appendChild(el);
