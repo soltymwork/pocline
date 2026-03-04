@@ -400,7 +400,7 @@ canvas#chart { position:absolute; inset:0; width:100% !important; height:100% !i
   position:relative; display:flex; justify-content:center;
   align-items:flex-start; margin-bottom:4px;
 }
-.forecast-icon { font-size:clamp(1.6rem,4.5vw,2.2rem); }
+.forecast-icon { font-size:clamp(1.3rem,3.5vw,1.7rem); }
 .forecast-temps {
   display:flex; justify-content:center; gap:4px;
   font-size:clamp(0.88rem,2.4vw,1.02rem); font-weight:700;
@@ -1113,6 +1113,7 @@ function locFocus() {
     el.onclick = ()=>{
       document.getElementById('loc-input').value = item.name;
       sug.classList.remove('open');
+      saveLocHistory(item.name, item.lat, item.lon);
       loadWeather(item.lat, item.lon, item.name);
     };
     sug.appendChild(el);
@@ -1153,9 +1154,11 @@ function locSuggest(val) {
         el.textContent = short || name;
         el.title = name;
         el.onclick = ()=>{
-          document.getElementById('loc-input').value = short || name;
+          const label = short || name;
+          document.getElementById('loc-input').value = label;
           sug.classList.remove('open');
-          loadWeather(parseFloat(item.lat), parseFloat(item.lon), short || name);
+          saveLocHistory(label, parseFloat(item.lat), parseFloat(item.lon));
+          loadWeather(parseFloat(item.lat), parseFloat(item.lon), label);
         };
         sug.appendChild(el);
       });
@@ -1461,10 +1464,16 @@ function renderHourly(dayIso) {
 
     const el = document.createElement('div');
     el.className = 'hourly-item' + (isNow?' now':'');
+    // Temp color: ≤0 blue, 1-15 orange, 16-20 orange, 21-30 light red, 30+ dark red
+    const tRound = Math.round(temp);
+    let tempColor = 'var(--accent2)';
+    if(tRound <= 0) tempColor = 'var(--accent)';
+    else if(tRound >= 30) tempColor = '#c53030';
+    else if(tRound >= 21) tempColor = '#fc8181';
     el.innerHTML = `
       <div class="hourly-time">${isNow?'Teraz':hr+':00'}</div>
       <div class="hourly-icon">${ico}</div>
-      <div class="hourly-temp">${temp.toFixed(0)}°</div>
+      <div class="hourly-temp" style="color:${tempColor}">${temp.toFixed(0)}°</div>
       <div class="hourly-rain"${prob===0?' style="color:var(--muted)"':''}>💧${prob}%</div>`;
     el.addEventListener('click', function() { openHourDetail(idx, hr, isNow, this); });
     container.appendChild(el);
@@ -1666,8 +1675,7 @@ async function reverseGeocode(lat,lon){
       {headers:{'Accept-Language':'sk'}});
     const d=await r.json();
     const city=d.address.city||d.address.town||d.address.village||d.address.county||'';
-    const country=d.address.country||'';
-    document.getElementById('location-name').textContent=`📍 ${city}${country?', '+country:''}`;
+    document.getElementById('location-name').textContent=`📍 ${city}`;
   }catch(e){
     document.getElementById('location-name').textContent=`📍 ${lat.toFixed(3)}, ${lon.toFixed(3)}`;
   }
