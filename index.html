@@ -1074,10 +1074,10 @@ function calcFeelsLike(T, windKmh, humidity) {
     return HI;
   }
   // 10–27°C: realistic mild correction
-  // Wind: stronger effect at lower temps, mild at higher
+  // Wind: cooling effect, stronger at lower temps
   const windEffect = V > 5 ? Math.min(4, (V - 5) * 0.08 * Math.max(0.2, (25 - T) / 15)) : 0;
-  // Humidity: muggy feeling above ~65%
-  const humEffect = humidity > 65 ? (humidity - 65) * 0.025 : 0;
+  // Humidity: muggy warmth only above 22°C (approaching heat index zone)
+  const humEffect = (T >= 22 && humidity > 65) ? (humidity - 65) * 0.03 * ((T - 22) / 5) : 0;
   return T - windEffect + humEffect;
 }
 
