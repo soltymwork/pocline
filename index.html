@@ -1061,7 +1061,7 @@ updateClock();
 function calcFeelsLike(T, windKmh, humidity) {
   const V = windKmh;
   if(T <= 10 && V > 4.8) {
-    // Wind Chill (Environment Canada formula)
+    // Wind Chill (Environment Canada)
     return 13.12 + 0.6215*T - 11.37*Math.pow(V,0.16) + 0.3965*T*Math.pow(V,0.16);
   } else if(T >= 27) {
     // Heat Index (Rothfusz / Steadman)
@@ -1073,7 +1073,12 @@ function calcFeelsLike(T, windKmh, humidity) {
       + 0.00072546*T*R*R - 0.000003582*T*T*R*R;
     return HI;
   }
-  return T;
+  // 10–27°C: realistic mild correction
+  // Wind: stronger effect at lower temps, mild at higher
+  const windEffect = V > 5 ? Math.min(4, (V - 5) * 0.08 * Math.max(0.2, (25 - T) / 15)) : 0;
+  // Humidity: muggy feeling above ~65%
+  const humEffect = humidity > 65 ? (humidity - 65) * 0.025 : 0;
+  return T - windEffect + humEffect;
 }
 
 
@@ -1218,7 +1223,8 @@ function populate(data) {
 
   // Temperature
   document.getElementById('temp-display').innerHTML = `${c.temperature_2m.toFixed(1)}<sup>°C</sup>`;
-  document.getElementById('feels-like').textContent  = `${c.apparent_temperature.toFixed(1)}°C`;
+  const feelsLikeCurrent = calcFeelsLike(c.temperature_2m, c.wind_speed_10m, c.relative_humidity_2m);
+  document.getElementById('feels-like').textContent  = `${feelsLikeCurrent.toFixed(1)}°C`;
   const [wIcon, wDesc] = wmoInfo(c.weather_code);
   document.getElementById('weather-desc').textContent = wIcon + ' ' + wDesc;
 
@@ -1511,7 +1517,7 @@ function openHourDetail(idx, hr, isNow, el) {
   const wind = (d.wind_speed_10m?.[idx]||0).toFixed(0);
   const gusts = (d.wind_gusts_10m?.[idx]||0).toFixed(0);
   const humidity = (d.relative_humidity_2m?.[idx]||0);
-  const feelsLike = (d.apparent_temperature?.[idx] ?? d.temperature_2m[idx]).toFixed(1);
+  const feelsLike = calcFeelsLike(d.temperature_2m[idx], d.wind_speed_10m[idx], d.relative_humidity_2m[idx]).toFixed(1);
   const prob = d.precipitation_probability[idx] || 0;
   const precip = (d.precipitation?.[idx]||0).toFixed(1);
   const vis = d.visibility?.[idx] ? (d.visibility[idx]/1000).toFixed(1)+' km' : '--';
