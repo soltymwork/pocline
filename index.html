@@ -403,14 +403,14 @@ canvas#chart { position:absolute; inset:0; width:100% !important; height:100% !i
 }
 .forecast-icon { font-size:clamp(1.3rem,3.5vw,1.7rem); }
 .forecast-temps {
-  display:flex; justify-content:center; gap:4px;
-  font-size:clamp(0.96rem,2.6vw,1.12rem); font-weight:700;
+  display:flex; justify-content:center; gap:8px;
+  font-size:clamp(1.04rem,2.8vw,1.22rem); font-weight:700;
   margin-top:4px;
 }
 .forecast-temps .h { color:var(--accent2); }
 .forecast-temps .l { color:var(--accent); }
 .forecast-rain { font-size:clamp(0.68rem,1.8vw,0.78rem); color:var(--muted); margin-top:6px; }
-.forecast-wind { font-size:0.75rem; position:absolute; top:4px; right:-10px; line-height:1; }
+.forecast-wind { font-size:0.75rem; position:absolute; top:-4px; right:-12px; line-height:1; }
 
 /* STATUS */
 .status-bar {
@@ -1218,8 +1218,7 @@ function populate(data) {
 
   // Temperature
   document.getElementById('temp-display').innerHTML = `${c.temperature_2m.toFixed(1)}<sup>°C</sup>`;
-  const feelsLikeCurrent = calcFeelsLike(c.temperature_2m, c.wind_speed_10m, c.relative_humidity_2m);
-  document.getElementById('feels-like').textContent  = `${feelsLikeCurrent.toFixed(1)}°C`;
+  document.getElementById('feels-like').textContent  = `${c.apparent_temperature.toFixed(1)}°C`;
   const [wIcon, wDesc] = wmoInfo(c.weather_code);
   document.getElementById('weather-desc').textContent = wIcon + ' ' + wDesc;
 
@@ -1512,7 +1511,7 @@ function openHourDetail(idx, hr, isNow, el) {
   const wind = (d.wind_speed_10m?.[idx]||0).toFixed(0);
   const gusts = (d.wind_gusts_10m?.[idx]||0).toFixed(0);
   const humidity = (d.relative_humidity_2m?.[idx]||0);
-  const feelsLike = calcFeelsLike(d.temperature_2m[idx], d.wind_speed_10m[idx], d.relative_humidity_2m[idx]).toFixed(1);
+  const feelsLike = (d.apparent_temperature?.[idx] ?? d.temperature_2m[idx]).toFixed(1);
   const prob = d.precipitation_probability[idx] || 0;
   const precip = (d.precipitation?.[idx]||0).toFixed(1);
   const vis = d.visibility?.[idx] ? (d.visibility[idx]/1000).toFixed(1)+' km' : '--';
