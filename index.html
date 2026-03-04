@@ -388,26 +388,26 @@ canvas#chart { position:absolute; inset:0; width:100% !important; height:100% !i
 }
 .forecast-item:hover { border-color:var(--accent); transform:translateY(-2px); }
 .forecast-day {
-  font-size:clamp(0.66rem,1.7vw,0.76rem);
-  letter-spacing:0.1em; text-transform:uppercase;
+  font-size:clamp(0.72rem,1.8vw,0.82rem);
+  letter-spacing:0.08em; text-transform:uppercase;
   color:var(--muted); margin-bottom:2px;
 }
 .forecast-date {
-  font-size:clamp(0.56rem,1.4vw,0.62rem);
-  color:var(--muted); opacity:0.7; margin-bottom:8px;
+  font-size:clamp(0.6rem,1.5vw,0.66rem);
+  color:var(--muted); opacity:0.7; margin-bottom:6px;
 }
 .forecast-icon-row {
   position:relative; display:flex; justify-content:center;
-  align-items:flex-start; margin-bottom:8px;
+  align-items:flex-start; margin-bottom:6px;
 }
-.forecast-icon { font-size:clamp(1.5rem,4.5vw,2.1rem); }
+.forecast-icon { font-size:clamp(1.6rem,4.5vw,2.2rem); }
 .forecast-temps {
   display:flex; justify-content:center; gap:5px;
-  font-size:clamp(0.78rem,2.1vw,0.92rem); font-weight:600;
+  font-size:clamp(0.82rem,2.2vw,0.96rem); font-weight:600;
 }
 .forecast-temps .h { color:var(--accent2); }
 .forecast-temps .l { color:var(--accent); }
-.forecast-rain { font-size:clamp(0.64rem,1.7vw,0.74rem); color:var(--muted); margin-top:6px; }
+.forecast-rain { font-size:clamp(0.66rem,1.8vw,0.76rem); color:var(--muted); margin-top:5px; }
 .forecast-wind { font-size:0.75rem; position:absolute; top:-4px; right:-2px; line-height:1; }
 
 /* STATUS */
@@ -913,7 +913,7 @@ canvas#chart { position:absolute; inset:0; width:100% !important; height:100% !i
   <!-- UV -->
   <div class="card c3" id="uv-card">
     <div class="card-label"><div class="dot" style="background:var(--accent2)"></div>UV Index</div>
-    <div class="big-val" id="uv-val" style="color:var(--accent2)">--</div>
+    <div class="pressure-val" id="uv-val" style="color:var(--accent2)">--</div>
     <div class="badge low" id="uv-badge">Načítavam</div>
     <div class="sub-info">SPF odporúčanie:<br><span id="spf-rec">--</span></div>
   </div>
@@ -1177,7 +1177,7 @@ document.addEventListener('click', e=>{
 function wmoInfo(code) {
   const m = {
     0:['☀️','Jasno'],1:['🌤️','Prevažne jasno'],2:['⛅','Čiastočne zamračené'],3:['☁️','Zamračené'],
-    45:['🌁','Hmla'],48:['🌁','Hmla'],
+    45:['<svg viewBox="0 0 36 36" style="width:1em;height:1em;vertical-align:middle"><circle cx="18" cy="12" r="6" fill="none" stroke="#a0aec0" stroke-width="2"/><line x1="6" y1="21" x2="30" y2="21" stroke="#a0aec0" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/><line x1="9" y1="26" x2="27" y2="26" stroke="#a0aec0" stroke-width="2" stroke-linecap="round" opacity="0.6"/><line x1="12" y1="31" x2="24" y2="31" stroke="#a0aec0" stroke-width="1.5" stroke-linecap="round" opacity="0.35"/></svg>','Hmla'],48:['<svg viewBox="0 0 36 36" style="width:1em;height:1em;vertical-align:middle"><circle cx="18" cy="12" r="6" fill="none" stroke="#a0aec0" stroke-width="2"/><line x1="6" y1="21" x2="30" y2="21" stroke="#a0aec0" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/><line x1="9" y1="26" x2="27" y2="26" stroke="#a0aec0" stroke-width="2" stroke-linecap="round" opacity="0.6"/><line x1="12" y1="31" x2="24" y2="31" stroke="#a0aec0" stroke-width="1.5" stroke-linecap="round" opacity="0.35"/></svg>','Hmla'],
     51:['🌧','Prehánky'],53:['🌧','Prehánky'],55:['🌧','Silné prehánky'],
     61:['🌧','Dážď'],63:['🌧','Dážď'],65:['🌧','Silný dážď'],
     71:['🌨','Sneh'],73:['🌨','Sneh'],75:['❄️','Silný sneh'],77:['🌨','Snehové zrná'],
