@@ -1691,6 +1691,7 @@ async function fetchWeather(lat,lon){
   // Multi-model: fetch ECMWF for cloud_cover cross-check
   const ecmwfUrl=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`
     +`&current=weather_code,cloud_cover&hourly=weather_code,cloud_cover`
+    +`&daily=weather_code`
     +`&timezone=${encodeURIComponent(tz)}&forecast_days=14&models=ecmwf_ifs025`;
 
   const [mainRes, ecmwfRes] = await Promise.all([
@@ -1710,21 +1711,45 @@ async function fetchWeather(lat,lon){
         if(bmCC !== undefined && ecCC !== undefined) {
           data.current.cloud_cover = Math.round((bmCC + ecCC) / 2);
         }
-        // If models disagree strongly on weather_code, use the less cloudy one
         const bmCode = data.current.weather_code;
         const ecCode = ecmwf.current.weather_code;
         if(bmCode <= 3 && ecCode <= 3 && bmCode !== ecCode) {
           data.current.weather_code = Math.min(bmCode, ecCode);
         }
       }
-      // Also average hourly cloud_cover
-      if(ecmwf.hourly && ecmwf.hourly.cloud_cover && data.hourly) {
-        const bmH = data.hourly.cloud_cover;
-        const ecH = ecmwf.hourly.cloud_cover;
-        // ECMWF hourly may have different length, match by time
-        if(!bmH) {
-          // best_match doesn't have hourly cloud_cover, skip
-        }
+      // Merge hourly weather_code by matching timestamps
+      if(ecmwf.hourly && ecmwf.hourly.time && data.hourly && data.hourly.time) {
+        const ecMap = {};
+        ecmwf.hourly.time.forEach((t, i) => {
+          ecMap[t] = {
+            code: ecmwf.hourly.weather_code?.[i],
+            cc: ecmwf.hourly.cloud_cover?.[i]
+          };
+        });
+        data.hourly.time.forEach((t, i) => {
+          const ec = ecMap[t];
+          if(!ec) return;
+          const bmCode = data.hourly.weather_code[i];
+          const ecCode = ec.code;
+          // For cloud codes 0-3: use less cloudy one
+          if(bmCode !== undefined && ecCode !== undefined && bmCode <= 3 && ecCode <= 3) {
+            data.hourly.weather_code[i] = Math.min(bmCode, ecCode);
+          }
+        });
+      }
+      // Merge daily weather_code
+      if(ecmwf.daily && ecmwf.daily.time && data.daily && data.daily.time) {
+        const ecDayMap = {};
+        ecmwf.daily.time.forEach((t, i) => {
+          ecDayMap[t] = ecmwf.daily.weather_code?.[i];
+        });
+        data.daily.time.forEach((t, i) => {
+          const ecCode = ecDayMap[t];
+          const bmCode = data.daily.weather_code[i];
+          if(bmCode !== undefined && ecCode !== undefined && bmCode <= 3 && ecCode <= 3) {
+            data.daily.weather_code[i] = Math.min(bmCode, ecCode);
+          }
+        });
       }
     }
   } catch(e) { /* ECMWF merge failed, use best_match only */ }
