@@ -203,15 +203,15 @@ header {
   display:flex;
   flex-direction:column;
 }
-#temp-card.wx-clear-day   { background: linear-gradient(160deg,#18191c 0%,#1e1f24 100%); }
+#temp-card.wx-clear-day   { background: linear-gradient(160deg,#1e2233 0%,#252a38 100%); }
 #temp-card.wx-clear-night { background: linear-gradient(160deg,#0a0a0c 0%,#0e0e12 100%); }
-#temp-card.wx-cloudy      { background: linear-gradient(160deg,#141416 0%,#1a1a1e 100%); }
-#temp-card.wx-partly-day  { background: linear-gradient(160deg,#16171a 0%,#1c1d22 100%); }
+#temp-card.wx-cloudy      { background: linear-gradient(160deg,#1a1a1e 0%,#202025 100%); }
+#temp-card.wx-partly-day  { background: linear-gradient(160deg,#1c2030 0%,#222838 100%); }
 #temp-card.wx-partly-night{ background: linear-gradient(160deg,#0c0c10 0%,#101014 100%); }
-#temp-card.wx-rain        { background: linear-gradient(160deg,#0e0e11 0%,#121215 100%); }
+#temp-card.wx-rain        { background: linear-gradient(160deg,#14151a 0%,#181a20 100%); }
 #temp-card.wx-storm       { background: linear-gradient(160deg,#0a0a0c 0%,#0e0e10 100%); }
-#temp-card.wx-snow        { background: linear-gradient(160deg,#141418 0%,#1a1a1f 100%); }
-#temp-card.wx-fog         { background: linear-gradient(160deg,#141418 0%,#1a1a20 100%); }
+#temp-card.wx-snow        { background: linear-gradient(160deg,#1a1c22 0%,#202228 100%); }
+#temp-card.wx-fog         { background: linear-gradient(160deg,#1a1c22 0%,#202228 100%); }
 .temp-main {
   font-family:'Outfit', sans-serif;
   margin-top:18px;
@@ -1191,14 +1191,18 @@ document.addEventListener('click', e=>{
   }
 });
 
-function wmoInfo(code) {
+function wmoInfo(code, isNight) {
+  const fogSvg = '<svg viewBox="0 0 36 36" style="width:1em;height:1em;vertical-align:middle"><circle cx="18" cy="12" r="6" fill="none" stroke="#a0aec0" stroke-width="2"/><line x1="6" y1="21" x2="30" y2="21" stroke="#a0aec0" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/><line x1="9" y1="26" x2="27" y2="26" stroke="#a0aec0" stroke-width="2" stroke-linecap="round" opacity="0.6"/><line x1="12" y1="31" x2="24" y2="31" stroke="#a0aec0" stroke-width="1.5" stroke-linecap="round" opacity="0.35"/></svg>';
   const m = {
-    0:['☀️','Jasno'],1:['🌤️','Prevažne jasno'],2:['⛅','Čiastočne zamračené'],3:['☁️','Zamračené'],
-    45:['<svg viewBox="0 0 36 36" style="width:1em;height:1em;vertical-align:middle"><circle cx="18" cy="12" r="6" fill="none" stroke="#a0aec0" stroke-width="2"/><line x1="6" y1="21" x2="30" y2="21" stroke="#a0aec0" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/><line x1="9" y1="26" x2="27" y2="26" stroke="#a0aec0" stroke-width="2" stroke-linecap="round" opacity="0.6"/><line x1="12" y1="31" x2="24" y2="31" stroke="#a0aec0" stroke-width="1.5" stroke-linecap="round" opacity="0.35"/></svg>','Hmla'],48:['<svg viewBox="0 0 36 36" style="width:1em;height:1em;vertical-align:middle"><circle cx="18" cy="12" r="6" fill="none" stroke="#a0aec0" stroke-width="2"/><line x1="6" y1="21" x2="30" y2="21" stroke="#a0aec0" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/><line x1="9" y1="26" x2="27" y2="26" stroke="#a0aec0" stroke-width="2" stroke-linecap="round" opacity="0.6"/><line x1="12" y1="31" x2="24" y2="31" stroke="#a0aec0" stroke-width="1.5" stroke-linecap="round" opacity="0.35"/></svg>','Hmla'],
+    0:[isNight?'🌙':'☀️','Jasno'],
+    1:[isNight?'🌙':'🌤️','Prevažne jasno'],
+    2:[isNight?'☁️':'⛅','Čiastočne zamračené'],
+    3:['☁️','Zamračené'],
+    45:[fogSvg,'Hmla'],48:[fogSvg,'Hmla'],
     51:['🌧','Prehánky'],53:['🌧','Prehánky'],55:['🌧','Silné prehánky'],
     61:['🌧','Dážď'],63:['🌧','Dážď'],65:['🌧','Silný dážď'],
     71:['🌨','Sneh'],73:['🌨','Sneh'],75:['❄️','Silný sneh'],77:['🌨','Snehové zrná'],
-    80:['🌦','Prehánky'],81:['🌦','Prehánky'],82:['⛈','Silné prehánky'],
+    80:[isNight?'🌧':'🌦','Prehánky'],81:[isNight?'🌧':'🌦','Prehánky'],82:['⛈','Silné prehánky'],
     85:['🌨','Snehové prehánky'],86:['🌨','Snehové prehánky'],
     95:['⛈','Búrka'],96:['⛈','Búrka+krúpy'],99:['⛈','Búrka+krúpy'],
   };
@@ -1241,7 +1245,7 @@ function populate(data) {
     else if(cc <= 65) currentCode = 2;   // čiastočne zamračené
     else currentCode = 3;                // zamračené
   }
-  const [wIcon, wDesc] = wmoInfo(currentCode);
+  const [wIcon, wDesc] = wmoInfo(currentCode, !c.is_day);
   document.getElementById('weather-desc').textContent = wIcon + ' ' + wDesc;
 
   // dynamic weather background
@@ -1476,13 +1480,26 @@ function renderHourly(dayIso) {
   const nowH   = new Date().getHours();
   const isToday= dayStr === new Date().toISOString().slice(0,10);
 
+  // Get sunrise/sunset for this day
+  let sunriseHr = 6, sunsetHr = 20; // fallback
+  if(dailyData && dailyData.time) {
+    const dIdx = dailyData.time.findIndex(t => t.slice(0,10) === dayStr);
+    if(dIdx >= 0) {
+      const sr = dailyData.sunrise?.[dIdx];
+      const ss = dailyData.sunset?.[dIdx];
+      if(sr) sunriseHr = new Date(sr).getHours();
+      if(ss) sunsetHr = new Date(ss).getHours();
+    }
+  }
+
   hourlyData.time.forEach((t, idx) => {
     if(!t.startsWith(dayStr)) return;
     const hr   = new Date(t).getHours();
     const temp = hourlyData.temperature_2m[idx];
     const code = hourlyData.weather_code[idx];
     const prob = hourlyData.precipitation_probability[idx] || 0;
-    const [ico] = wmoInfo(adjustCode(code, prob));
+    const isNight = hr < sunriseHr || hr >= sunsetHr;
+    const [ico] = wmoInfo(adjustCode(code, prob), isNight);
     const isNow  = isToday && hr === nowH;
 
     const el = document.createElement('div');
@@ -1528,7 +1545,21 @@ function openHourDetail(idx, hr, isNow, el) {
   }
   detail.dataset.idx = String(idx);
 
-  const [ico, desc] = wmoInfo(adjustCode(d.weather_code[idx], d.precipitation_probability[idx]||0));
+  // Determine day/night for this hour
+  const hourDayStr = d.time[idx].slice(0,10);
+  let hrSunrise = 6, hrSunset = 20;
+  if(dailyData && dailyData.time) {
+    const dIdx = dailyData.time.findIndex(t => t.slice(0,10) === hourDayStr);
+    if(dIdx >= 0) {
+      const sr = dailyData.sunrise?.[dIdx];
+      const ss = dailyData.sunset?.[dIdx];
+      if(sr) hrSunrise = new Date(sr).getHours();
+      if(ss) hrSunset = new Date(ss).getHours();
+    }
+  }
+  const hrIsNight = hr < hrSunrise || hr >= hrSunset;
+
+  const [ico, desc] = wmoInfo(adjustCode(d.weather_code[idx], d.precipitation_probability[idx]||0), hrIsNight);
   const timeLabel = isNow ? 'Teraz' : hr + ':00';
   const wind = (d.wind_speed_10m?.[idx]||0).toFixed(0);
   const gusts = (d.wind_gusts_10m?.[idx]||0).toFixed(0);
@@ -1956,16 +1987,15 @@ function spawnClearDay(){
 }
 function drawClearDay(){
   const W=WW(), H=WH();
-  // Draw sky gradient directly on canvas (ensures visibility on all devices)
   const sky=wxCtx.createLinearGradient(0,0,W,H);
-  sky.addColorStop(0,'#16171a');
-  sky.addColorStop(1,'#101012');
+  sky.addColorStop(0,'#1a2030');
+  sky.addColorStop(1,'#141820');
   wxCtx.fillStyle=sky; wxCtx.fillRect(0,0,W,H);
   wxT+=0.005;
   const ox=W, oy=0;
   const amb=wxCtx.createRadialGradient(ox,oy,0,ox,oy,W*0.9);
-  amb.addColorStop(0,'rgba(255,220,120,0.22)');
-  amb.addColorStop(0.4,'rgba(255,200,90,0.08)');
+  amb.addColorStop(0,'rgba(255,220,120,0.35)');
+  amb.addColorStop(0.4,'rgba(255,200,90,0.14)');
   amb.addColorStop(1,'rgba(255,180,70,0)');
   wxCtx.fillStyle=amb; wxCtx.fillRect(0,0,W,H);
   wxParticles.forEach(r=>{
@@ -2312,12 +2342,12 @@ function drawPartlyDay(){
   wxT+=0.005;
   // Sky gradient with warm corner glow
   const sky=wxCtx.createLinearGradient(0,0,W,H);
-  sky.addColorStop(0,'#16171a'); sky.addColorStop(1,'#101012');
+  sky.addColorStop(0,'#1a2030'); sky.addColorStop(1,'#141820');
   wxCtx.fillStyle=sky; wxCtx.fillRect(0,0,W,H);
   const ox=W, oy=0;
   const amb=wxCtx.createRadialGradient(ox,oy,0,ox,oy,W*0.9);
-  amb.addColorStop(0,'rgba(255,235,150,0.42)');
-  amb.addColorStop(0.4,'rgba(255,215,100,0.18)');
+  amb.addColorStop(0,'rgba(255,235,150,0.5)');
+  amb.addColorStop(0.4,'rgba(255,215,100,0.22)');
   amb.addColorStop(1,'rgba(255,185,70,0)');
   wxCtx.fillStyle=amb; wxCtx.fillRect(0,0,W,H);
   // Rays behind clouds
