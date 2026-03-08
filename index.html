@@ -1247,7 +1247,7 @@ function populate(data) {
     else currentCode = 3;                // zamračené
   }
   const [wIcon, wDesc] = wmoInfo(currentCode, !c.is_day);
-  document.getElementById('weather-desc').textContent = wIcon + ' ' + wDesc;
+  document.getElementById('weather-desc').innerHTML = wIcon + ' ' + wDesc;
 
   // dynamic weather background
   const now = new Date();
@@ -1429,7 +1429,7 @@ function openModal(i) {
 
   document.getElementById('modal-date').textContent =
     `${dt.getDate()}. ${MON_SK[dt.getMonth()]} ${dt.getFullYear()}`;
-  document.getElementById('modal-title').textContent = `${icon} ${label}`;
+  document.getElementById('modal-title').innerHTML = `${icon} ${label}`;
   document.getElementById('modal-desc').textContent  = desc;
 
   const rise = d.sunrise?.[i], set = d.sunset?.[i];
