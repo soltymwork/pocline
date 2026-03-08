@@ -1,4 +1,4 @@
-const CACHE = 'pocline-v7';
+const CACHE = 'pocline-v8';
 const PRECACHE = [
   '/',
   '/index.html',
