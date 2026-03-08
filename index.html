@@ -1232,7 +1232,16 @@ function populate(data) {
   document.getElementById('temp-display').innerHTML = `${c.temperature_2m.toFixed(1)}<sup>°C</sup>`;
   const feelsLikeCurrent = calcFeelsLike(c.temperature_2m, c.wind_speed_10m, c.relative_humidity_2m);
   document.getElementById('feels-like').textContent  = `${feelsLikeCurrent.toFixed(1)}°C`;
-  const [wIcon, wDesc] = wmoInfo(c.weather_code);
+  // Smart weather code: cross-check with actual cloud_cover for codes 0-3
+  let currentCode = c.weather_code;
+  const cc = c.cloud_cover;
+  if(currentCode <= 3 && cc !== undefined) {
+    if(cc <= 10) currentCode = 0;       // jasno
+    else if(cc <= 35) currentCode = 1;   // prevažne jasno
+    else if(cc <= 65) currentCode = 2;   // čiastočne zamračené
+    else currentCode = 3;                // zamračené
+  }
+  const [wIcon, wDesc] = wmoInfo(currentCode);
   document.getElementById('weather-desc').textContent = wIcon + ' ' + wDesc;
 
   // dynamic weather background
@@ -1255,7 +1264,7 @@ function populate(data) {
   } else {
     isDay = (now.getHours() >= 6 && now.getHours() < 20);
   }
-  setWeatherBg(c.weather_code, isDay);
+  setWeatherBg(currentCode, isDay);
   // Temp card extras
   const tcSunrise = data.daily.sunrise?.[0];
   const tcSunset  = data.daily.sunset?.[0];
