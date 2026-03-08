@@ -568,9 +568,9 @@ canvas#chart { position:absolute; inset:0; width:100% !important; height:100% !i
 .hourly-scroll::-webkit-scrollbar-track { background:transparent; }
 .hourly-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
 .hourly-item {
-  flex:0 0 auto; width:66px;
+  flex:0 0 auto; width:72px;
   background:var(--card2); border:1px solid var(--border);
-  border-radius:10px; padding:12px 7px;
+  border-radius:10px; padding:12px 8px;
   text-align:center; cursor:pointer;
   transition:border-color 0.2s, transform 0.2s;
 }
@@ -603,7 +603,7 @@ canvas#chart { position:absolute; inset:0; width:100% !important; height:100% !i
 .hourly-time {
   font-size:0.68rem; color:var(--muted); margin-bottom:5px; letter-spacing:0.06em;
 }
-.hourly-icon { font-size:1.35rem; margin-bottom:4px; }
+.hourly-icon { font-size:1.5rem; margin-bottom:4px; min-height:1.5em; display:flex; align-items:center; justify-content:center; }
 .hourly-temp {
   font-family:'Playfair Display', serif;
   font-size:1.05rem; font-weight:700; color:var(--text);
@@ -1193,10 +1193,11 @@ document.addEventListener('click', e=>{
 
 function wmoInfo(code, isNight) {
   const fogSvg = '<svg viewBox="0 0 36 36" style="width:1em;height:1em;vertical-align:middle"><circle cx="18" cy="12" r="6" fill="none" stroke="#a0aec0" stroke-width="2"/><line x1="6" y1="21" x2="30" y2="21" stroke="#a0aec0" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/><line x1="9" y1="26" x2="27" y2="26" stroke="#a0aec0" stroke-width="2" stroke-linecap="round" opacity="0.6"/><line x1="12" y1="31" x2="24" y2="31" stroke="#a0aec0" stroke-width="1.5" stroke-linecap="round" opacity="0.35"/></svg>';
+  const moonCloudIcon = '<span style="display:inline-block;position:relative;width:1.5em;height:1.3em;vertical-align:middle"><span style="position:absolute;left:0;top:0;font-size:0.65em;line-height:1">🌙</span><span style="position:absolute;right:0;bottom:0;font-size:0.85em;line-height:1">☁️</span></span>';
   const m = {
     0:[isNight?'🌙':'☀️','Jasno'],
     1:[isNight?'🌙':'🌤️','Prevažne jasno'],
-    2:[isNight?'🌙☁️':'⛅','Čiastočne zamračené'],
+    2:[isNight?moonCloudIcon:'⛅','Čiastočne zamračené'],
     3:['☁️','Zamračené'],
     45:[fogSvg,'Hmla'],48:[fogSvg,'Hmla'],
     51:['🌧','Prehánky'],53:['🌧','Prehánky'],55:['🌧','Silné prehánky'],
