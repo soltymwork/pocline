@@ -831,7 +831,7 @@ canvas#chart { position:absolute; inset:0; width:100% !important; height:100% !i
     <div id="date-display">---</div>
     <div class="live-badge"><div class="live-dot"></div>Live</div>
   </div>
-  <div class="install-wrap"><a href="https://github.com/soltymwork/pocline/releases/download/v1.0/pocline.apk" class="install-btn" download onclick="gtag('event','apk_download',{'event_category':'app'})">📲 Stiahnuť aplikáciu</a></div>
+  <div class="install-wrap" id="install-wrap"></div>
 </header>
 
 <div class="grid">
@@ -2589,12 +2589,29 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
 
-// Skryť APK button ak je appka otvorená v natívnom Android WebView
-if(/wv\)/.test(navigator.userAgent) || /PocLine/.test(navigator.userAgent)) {
-  const btn = document.querySelector('.install-wrap');
-  if(btn) btn.style.display = 'none';
+// Detekcia platformy
+const isWebView = /wv\)/.test(navigator.userAgent) || /PocLine/.test(navigator.userAgent);
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const wrap = document.getElementById('install-wrap');
+
+if(isWebView) {
+  // Natívna Android appka — skryť
+  wrap.style.display = 'none';
+} else if(isIOS) {
+  // iOS — zobraziť info text + PWA inštrukciu
+  wrap.innerHTML = '<span style="color:#9ca3af;font-size:12px;">Aplikácia s widgetmi je dostupná zatiaľ len pre Android.</span>' +
+    '<button class="install-btn" style="margin-top:6px;" onclick="document.getElementById(\'ios-toast\').style.display=\'block\'">📲 Pridať na plochu</button>';
+} else {
+  // Android prehliadač — APK download
+  wrap.innerHTML = '<a href="https://github.com/soltymwork/pocline/releases/download/v1.0/pocline.apk" class="install-btn" download onclick="gtag(\'event\',\'apk_download\',{\'event_category\':\'app\'})">📲 Stiahnuť aplikáciu</a>';
 }
 </script>
+
+<div id="ios-toast" style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1f2937;border:1px solid #374151;border-radius:14px;padding:14px 20px;color:#fff;font-size:14px;text-align:center;z-index:9999;box-shadow:0 8px 30px rgba(0,0,0,0.4);">
+  <button onclick="this.parentElement.style.display='none'" style="position:absolute;top:6px;right:10px;background:none;border:none;color:#9ca3af;font-size:1rem;cursor:pointer;">✕</button>
+  Ťukni na <strong>📤 Zdieľať</strong> (dole v Safari)<br>
+  a potom <strong>Pridať na plochu</strong>
+</div>
 
 </body>
 </html>
