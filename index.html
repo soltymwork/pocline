@@ -767,6 +767,10 @@ canvas#chart { position:absolute; inset:0; width:100% !important; height:100% !i
   transition:color 0.2s;
 }
 .loc-search-box button:hover { color:var(--accent); }
+#android-settings-btn {
+  border-right:1px solid var(--border) !important;
+  font-size:1.15rem; color:var(--text) !important;
+}
 #loc-suggestions {
   position:absolute; top:calc(100% + 4px); left:0; right:0;
   background:var(--card2); border:1px solid var(--border);
@@ -814,6 +818,7 @@ canvas#chart { position:absolute; inset:0; width:100% !important; height:100% !i
   </div>
   <div class="loc-search-wrap" id="loc-search-wrap">
     <div class="loc-search-box">
+      <button id="android-settings-btn" onclick="if(window.Android)window.Android.openSettings()" title="Nastavenia" style="display:none">⚙</button>
       <input type="text" id="loc-input" placeholder="Hľadaj lokalitu…" autocomplete="off"
         oninput="locSuggest(this.value)" onfocus="locFocus()" onkeydown="if(event.key==='Enter')locConfirm()">
       <button onclick="locConfirm()" title="Hľadať">⌕</button>
@@ -1916,6 +1921,10 @@ function wxResize() {
 }
 
 document.addEventListener('DOMContentLoaded', wxInit);
+if (window.Android) {
+  var sb = document.getElementById('android-settings-btn');
+  if (sb) sb.style.display = '';
+}
 
 function setWeatherBg(code, isDay) {
   if(!wxCanvas || !wxCtx) {
