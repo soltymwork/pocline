@@ -831,7 +831,7 @@ canvas#chart { position:absolute; inset:0; width:100% !important; height:100% !i
     <div id="date-display">---</div>
     <div class="live-badge"><div class="live-dot"></div>Live</div>
   </div>
-  <div class="install-wrap"><button id="install-btn" class="install-btn" style="display:none" onclick="installApp()">📲 Stiahnuť aplikáciu</button></div>
+  <div class="install-wrap"><a href="https://github.com/soltymwork/pocline/releases/download/v1.0/pocline.apk" class="install-btn" download>📲 Stiahnuť aplikáciu</a></div>
 </header>
 
 <div class="grid">
@@ -2573,11 +2573,6 @@ if(!navigator.geolocation){
 })();
 </script>
 
-<div id="ios-install-toast">
-  <button class="close-toast" onclick="this.parentElement.style.display='none'">✕</button>
-  Ťukni na <strong>📤 Zdieľať</strong> (dole v Safari)<br>
-  a potom <strong>Pridať na plochu</strong>
-</div>
 
 <script>
 // Register Service Worker for PWA
@@ -2585,50 +2580,6 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
 
-// ── PWA Install logic ──
-let deferredPrompt = null;
-const installBtn = document.getElementById('install-btn');
-
-const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-const isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-if(isStandalone) {
-  installBtn.style.display = 'none';
-} else {
-  // Android: capture beforeinstallprompt
-  window.addEventListener('beforeinstallprompt', e => {
-    e.preventDefault();
-    deferredPrompt = e;
-    installBtn.style.display = 'inline-flex';
-  });
-
-  // iOS: show button
-  if(isIOS) {
-    installBtn.style.display = 'inline-flex';
-  }
-}
-
-function installApp() {
-  if(deferredPrompt) {
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(r => {
-      if(r.outcome === 'accepted') installBtn.style.display = 'none';
-      deferredPrompt = null;
-    });
-  } else if(isIOS) {
-    const toast = document.getElementById('ios-install-toast');
-    toast.style.display = 'block';
-    setTimeout(() => { toast.style.display = 'none'; }, 8000);
-  }
-}
-
-// Hide button after successful install
-window.addEventListener('appinstalled', () => {
-  installBtn.style.display = 'none';
-  deferredPrompt = null;
-});
 </script>
 
 </body>
