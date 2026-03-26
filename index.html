@@ -2580,6 +2580,11 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
 
+// Skryť APK button ak je appka otvorená v natívnom Android WebView
+if(/wv\)/.test(navigator.userAgent) || /PocLine/.test(navigator.userAgent)) {
+  const btn = document.querySelector('.install-wrap');
+  if(btn) btn.style.display = 'none';
+}
 </script>
 
 </body>
