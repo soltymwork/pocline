@@ -1386,6 +1386,7 @@ function renderForecast(d) {
     const dailyCode = d.weather_code[i];
     const prob_i = d.precipitation_probability_max[i]||0;
     const noon = noonCode(d.time[i]);
+    if(i>=3) console.log('Day',i,d.time[i],'noon:',noon,'daily:',dailyCode,'prob:',prob_i);
     // Ak poludňajší kód je suchý ale denný kód je zrážkový → prehánky
     const code = (noon !== null && noon <= 2 && WMO_PRECIP.includes(dailyCode)) ? 80 : dailyCode;
     const [icon]= wmoInfo(adjustCode(code, prob_i));
