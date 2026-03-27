@@ -1387,7 +1387,7 @@ function renderForecast(d) {
     const prob_i = d.precipitation_probability_max[i]||0;
     const noon = noonCode(d.time[i]);
     // Ak poludňajší kód je suchý ale denný kód je zrážkový → prehánky
-    const code = (noon !== null && noon <= 3 && WMO_PRECIP.includes(dailyCode)) ? 80 : dailyCode;
+    const code = (noon !== null && noon <= 2 && WMO_PRECIP.includes(dailyCode)) ? 80 : dailyCode;
     const [icon]= wmoInfo(adjustCode(code, prob_i));
     const wind = d.wind_speed_10m_max?.[i]||0;
     if(i<5) console.log('Day',i,'wind:',wind,'raw:',d.wind_speed_10m_max?.[i]);
@@ -1433,7 +1433,7 @@ function openModal(i) {
   const dailyCode = d.weather_code[i];
   const modalProb = d.precipitation_probability_max[i]||0;
   const noonC = noonCode(d.time[i]);
-  const repCode = (noonC !== null && noonC <= 3 && WMO_PRECIP.includes(dailyCode)) ? 80 : dailyCode;
+  const repCode = (noonC !== null && noonC <= 2 && WMO_PRECIP.includes(dailyCode)) ? 80 : dailyCode;
   const [icon, desc] = wmoInfo(adjustCode(repCode, modalProb));
   const label = i===0?'Dnes':i===1?'Zajtra':DAY_SK_FULL[dt.getDay()];
 
