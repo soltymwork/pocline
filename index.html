@@ -1218,12 +1218,11 @@ function wmoInfo(code, isNight) {
 /* WMO precipitation codes */
 const WMO_PRECIP = [51,53,55,61,63,65,71,73,75,77,80,81,82,85,86,95,96,99];
 
-/* If rain probability is ≤10%, override precipitation codes to cloudy/clear */
+/* Upraviť kód podľa pravdepodobnosti zrážok */
 function adjustCode(code, prob) {
-  if(prob > 10 || !WMO_PRECIP.includes(code)) return code;
-  // Low probability — show cloud-based weather instead
-  if(code >= 71 && code <= 77 || code === 85 || code === 86) return 3; // snow codes → cloudy
-  return 3; // rain/storm codes → cloudy
+  if(!WMO_PRECIP.includes(code)) return code;
+  if(prob <= 20) return 3; // nízka pravdepodobnosť → zamračené
+  return code;
 }
 
 function windDirSK(deg) {
@@ -1386,11 +1385,11 @@ function renderForecast(d) {
     const dailyCode = d.weather_code[i];
     const prob_i = d.precipitation_probability_max[i]||0;
     const noon = noonCode(d.time[i]);
-    // Ak poludňajší kód je suchý ale denný kód je zrážkový → prehánky
-    let code = (noon !== null && noon <= 2 && WMO_PRECIP.includes(dailyCode)) ? 80 : dailyCode;
-    // Ak poludňajší kód je jasno/prevažne jasno ale denný kód je zamračené → čiastočne zamračené
-    if(noon !== null && noon <= 1 && dailyCode === 3) code = 2;
-    const [icon]= wmoInfo(adjustCode(code, prob_i));
+    let code = dailyCode;
+    if(prob_i <= 20 && WMO_PRECIP.includes(code)) code = (noon !== null && noon <= 1) ? 2 : 3;
+    else if(noon !== null && noon <= 2 && WMO_PRECIP.includes(code)) code = 80;
+    else if(noon !== null && noon <= 1 && code === 3) code = 2;
+    const [icon]= wmoInfo(code);
     const wind = d.wind_speed_10m_max?.[i]||0;
     if(i<5) console.log('Day',i,'wind:',wind,'raw:',d.wind_speed_10m_max?.[i]);
     const windIcon = wind >= 20 ? `<div class="forecast-wind"><svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M3 8h10c1.7 0 3-1.3 3-3s-1.3-3-3-3-3 1.3-3 3" stroke="#93c5fd" stroke-width="2" stroke-linecap="round"/> <line x1="3" y1="12" x2="18" y2="12" stroke="#93c5fd" stroke-width="2" stroke-linecap="round"/> <path d="M3 16h13c1.7 0 3 1.3 3 3s-1.3 3-3 3-3-1.3-3-3" stroke="#93c5fd" stroke-width="2" stroke-linecap="round"/></svg></div>` : '';
@@ -1435,9 +1434,11 @@ function openModal(i) {
   const dailyCode = d.weather_code[i];
   const modalProb = d.precipitation_probability_max[i]||0;
   const noonC = noonCode(d.time[i]);
-  let repCode = (noonC !== null && noonC <= 2 && WMO_PRECIP.includes(dailyCode)) ? 80 : dailyCode;
-  if(noonC !== null && noonC <= 1 && dailyCode === 3) repCode = 2;
-  const [icon, desc] = wmoInfo(adjustCode(repCode, modalProb));
+  let repCode = dailyCode;
+  if(modalProb <= 20 && WMO_PRECIP.includes(repCode)) repCode = (noonC !== null && noonC <= 1) ? 2 : 3;
+  else if(noonC !== null && noonC <= 2 && WMO_PRECIP.includes(repCode)) repCode = 80;
+  else if(noonC !== null && noonC <= 1 && repCode === 3) repCode = 2;
+  const [icon, desc] = wmoInfo(repCode);
   const label = i===0?'Dnes':i===1?'Zajtra':DAY_SK_FULL[dt.getDay()];
 
   document.getElementById('modal-date').textContent =
